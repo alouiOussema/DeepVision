@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Données volumineuses
+/data/raw/
+/data/hourly/
+/data/unified.parquet
+
+# Modèles entraînés
+/models/*.pkl
+
+# Logs et rapports
+/logs/*.csv
+/reports/*.pdf
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
