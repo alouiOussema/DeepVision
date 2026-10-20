@@ -1,0 +1,13 @@
+kind,size,events,recall,median_delay_h
+drift,3,4,0.25,39.0
+drift,5,4,0.25,25.0
+drift,10,4,0.5,18.5
+drop,3,4,0.0,
+drop,5,4,0.0,
+drop,10,4,0.0,
+shift,3,4,0.25,0.0
+shift,5,4,0.25,10.0
+shift,10,4,0.25,4.0
+spike,3,4,0.0,
+spike,5,4,0.0,
+spike,10,4,0.25,0.0

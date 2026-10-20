@@ -5,7 +5,6 @@
         "alert_rate": 0.000849762066621346,
         "score_mean": 0.7876319143415332,
         "score_std": 0.5089940043506844,
-        "separation_ratio": 2.6811598383919772,
         "score_histogram": {
           "counts": [
             484,
@@ -76,7 +75,6 @@
         "alert_rate": 0.066281441196465,
         "score_mean": 0.7159776374371057,
         "score_std": 0.7746376953872124,
-        "separation_ratio": 5.015702293184262,
         "score_histogram": {
           "counts": [
             3942,
@@ -170,7 +168,6 @@
         "alert_rate": 0.0667912984364378,
         "score_mean": 0.7740540706676257,
         "score_std": 0.7301198365063564,
-        "separation_ratio": 4.52568435705913,
         "score_histogram": {
           "counts": [
             3274,
@@ -263,7 +260,6 @@
         "alert_rate": 0.20833333333333334,
         "score_mean": 1.1864466291439857,
         "score_std": 0.8063909467760568,
-        "separation_ratio": 2.945628423339275,
         "score_histogram": {
           "counts": [
             2,
@@ -350,7 +346,6 @@
         "alert_rate": 0.0,
         "score_mean": 0.0,
         "score_std": 0.0,
-        "separation_ratio": null,
         "score_histogram": {
           "counts": [
             0,
@@ -429,7 +424,6 @@
         "alert_rate": 0.041666666666666664,
         "score_mean": 0.7579029897908995,
         "score_std": 0.5854088906859004,
-        "separation_ratio": 5.291515354206873,
         "score_histogram": {
           "counts": [
             6,
@@ -514,7 +508,6 @@
         "alert_rate": 0.08043032786885246,
         "score_mean": 0.8430434798204209,
         "score_std": 0.7348502505520449,
-        "separation_ratio": 3.651719915923062,
         "score_histogram": {
           "counts": [
             1435,
@@ -608,7 +601,6 @@
         "alert_rate": 0.0011953551912568306,
         "score_mean": 0.49590831942560093,
         "score_std": 0.32558565203491013,
-        "separation_ratio": 4.749866579383431,
         "score_histogram": {
           "counts": [
             792,
@@ -685,7 +677,6 @@
         "alert_rate": 0.11970628415300547,
         "score_mean": 0.8673163607059847,
         "score_std": 1.0560425080715663,
-        "separation_ratio": 5.902907251294873,
         "score_histogram": {
           "counts": [
             3538,

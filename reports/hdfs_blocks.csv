@@ -1,0 +1,4 @@
+method,AUC,false_alarm_rate,precision,recall,F1,false_alarms
+total_events,0.841,1.0%,0.623,0.445,0.519,2272
+iforest_29,0.712,1.0%,0.4,0.012,0.023,153
+pca_29,0.992,1.0%,0.68,0.61,0.643,2416
