@@ -10,6 +10,8 @@ env/
 /data/raw/
 /data/hourly/
 /data/unified.parquet
+/data/deploy
+/data/*.parquet
 
 # Modèles entraînés
 /models/*.pkl
@@ -17,6 +19,7 @@ env/
 # Logs et rapports
 /logs/*.csv
 /reports/*.pdf
+/reports/*.csv
 
 # IDE
 .vscode/

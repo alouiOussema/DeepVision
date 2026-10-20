@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitor scenario player</title>
+<style>
+  :root{--bg:#12162b;--card:#1c2142;--card2:#252b54;--ink:#fff;--mute:#a9b0d6;--coral:#ff5d73;--mint:#2ee6a8;--sun:#ffc857;--sky:#5aa9ff;--violet:#a78bfa;--grid:#3a4068}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+  h1{font-size:26px;margin:0 0 2px} h1 span{color:var(--sun)}
+  .sub{color:var(--mute);margin:0 0 16px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .tab{border:0;border-radius:999px;padding:8px 16px;background:var(--card);color:var(--mute);font:600 14px inherit;cursor:pointer}
+  .tab[aria-selected=true]{background:var(--sun);color:#12162b}
+  .grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border-radius:14px;padding:16px}
+  .card h2{font-size:17px;margin:0 0 6px} .card h3{font-size:13px;margin:0 0 6px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+  .blurb p{margin:4px 0;color:var(--mute)}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
+  select,button.ctl{background:var(--card2);color:var(--ink);border:0;border-radius:10px;padding:8px 12px;font:600 14px inherit}
+  button.ctl{cursor:pointer} button.go{background:var(--mint);color:#12162b}
+  input[type=range]{accent-color:var(--mint);flex:1;min-width:140px}
+  svg{width:100%;height:auto;display:block}
+  .axis{fill:var(--mute);font-size:11px} .lbl{fill:var(--mute);font-size:12px}
+  .verdict{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--card2);color:var(--ink);min-height:44px}
+  .verdict b{color:var(--sun)}
+  .pipe{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:10px}
+  .node{flex:0 0 auto;padding:8px 12px;border-radius:12px;background:var(--card2);font-weight:700;font-size:14px;text-align:center}
+  .node.mon{background:var(--sun);color:#12162b}
+  .track{position:relative;flex:1;height:2px;background:var(--grid)}
+  .packet{position:absolute;top:-8px;left:0;width:18px;height:18px;border-radius:50%;background:var(--coral);opacity:0}
+  .packet.fly{animation:fly 1s ease-in-out forwards}
+  @keyframes fly{0%{left:0;opacity:1}90%{opacity:1}100%{left:calc(100% - 18px);opacity:0}}
+  .inbox{color:var(--mute);font-size:13px;margin-bottom:8px} .inbox b{color:var(--mint);font-size:18px}
+  pre{margin:0;background:#0e1124;border-radius:10px;padding:12px;overflow:auto;max-height:340px;font:12.5px/1.45 ui-monospace,Consolas,Menlo,monospace;color:#cfe}
+  pre .k{color:var(--sky)} pre .s{color:var(--sun)} pre .n{color:var(--mint)}
+  .empty{color:var(--mute);font-style:italic;padding:18px 4px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:8px 0;font-size:14px} .kv span:nth-child(odd){color:var(--mute)}
+  .gauge{height:22px;background:var(--card2);border-radius:11px;position:relative;margin:14px 0 4px}
+  .gauge i{position:absolute;top:0;bottom:0;border-radius:11px}
+  .gauge u{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink)}
+  .small{font-size:12px;color:var(--mute)}
+  footer{margin-top:18px;color:var(--mute);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Monitor <span>scenario player</span></h1>
+  <p class="sub">Watch the watchdog decide: real detector output, replayed step by step, ending in the exact Alert Triage receives.</p>
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div class="grid">
+    <div>
+      <div class="card blurb" id="blurb"></div>
+      <div class="bar" id="bar"></div>
+      <div class="card" id="stage"></div>
+    </div>
+    <div>
+      <div class="card">
+        <h3>Alert path</h3>
+        <div class="pipe"><div class="node mon">Monitor · P1</div><div class="track"><div class="packet" id="packet"></div></div><div class="node">Triage · P2</div></div>
+        <div class="inbox">Triage inbox: <b id="inbox">0</b> alert(s) in this replay</div>
+        <pre id="json"><span class="small">No alert yet. Press Play.</span></pre>
+      </div>
+    </div>
+  </div>
+  <footer id="foot"></footer>
+</div>
+<script>
+const DATA = __DATA__;
+const $ = (id) => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+let sc, ex, idx = 0, playing = false, fired = 0, raf = 0, last = 0, speed = 1, sent = false;
+
+function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+function pretty(o){
+  return esc(JSON.stringify(o,null,2)).replace(/(&quot;|")([\w]+)(&quot;|")(:)/g,'<span class="k">"$2"</span>:')
+    .replace(/: "([^"]*)"/g,': <span class="s">"$1"</span>').replace(/: (-?\d[\d.e+-]*)/g,': <span class="n">$1</span>');
+}
+function showAlert(a){ $("json").innerHTML = a ? pretty(a) : '<span class="small">No alert yet. Press Play.</span>'; }
+function fly(){ const p=$("packet"); p.classList.remove("fly"); void p.offsetWidth; p.classList.add("fly"); }
+function setInbox(n){ $("inbox").textContent = n; }
+
+// ---------- tabs / example picker ----------
+function buildTabs(){
+  DATA.scenarios.forEach((s,i)=>{
+    const b=document.createElement("button"); b.className="tab"; b.textContent=s.tab; b.setAttribute("role","tab");
+    b.onclick=()=>selectScenario(i); b.id="tab"+i; $("tabs").appendChild(b);
+  });
+  $("foot").textContent = "Data source: "+DATA.built_from+" (rebuild with python -m scripts.06_scenario_page)";
+}
+function selectScenario(i){
+  sc = DATA.scenarios[i];
+  DATA.scenarios.forEach((_,k)=>$("tab"+k).setAttribute("aria-selected", k===i));
+  $("blurb").innerHTML = "<h2>"+esc(sc.title)+"</h2>"+sc.blurb.map(t=>"<p>"+esc(t)+"</p>").join("");
+  const sel = '<select id="pick" aria-label="Example">'+sc.examples.map((e,k)=>'<option value="'+k+'">'+esc(e.label)+'</option>').join("")+"</select>";
+  if (sc.kind==="series"){
+    $("bar").innerHTML = sel+'<button class="ctl go" id="play">▶ Play</button><button class="ctl" id="reset">⟲ Reset</button>'+
+      '<select id="speed" aria-label="Speed"><option value="0.5">slow</option><option value="1" selected>normal</option><option value="3">fast</option></select>'+
+      '<input type="range" id="scrub" min="0" max="1" step="1" value="0" aria-label="Time">';
+    $("play").onclick=togglePlay; $("reset").onclick=()=>loadExample(+$("pick").value);
+    $("speed").onchange=(e)=>speed=+e.target.value; $("scrub").oninput=(e)=>{pause(); idx=+e.target.value; render(true)};
+  } else {
+    $("bar").innerHTML = sel+'<button class="ctl go" id="send">Send to Triage</button>';
+    $("send").onclick=()=>{ sent=true; renderStatic(); if(ex.alert){fly(); showAlert(ex.alert); setInbox(1);} };
+  }
+  $("pick").onchange=(e)=>loadExample(+e.target.value);
+  loadExample(0);
+}
+function loadExample(k){
+  pause(); ex = sc.examples[k]; idx = 0; fired = 0; sent = false; showAlert(null); setInbox(0);
+  if (sc.kind==="series"){ $("scrub").max = ex.signal.length-1; $("scrub").value = 0; render(true); }
+  else renderStatic();
+}
+
+// ---------- playback ----------
+function togglePlay(){ playing ? pause() : play(); }
+function play(){
+  if (idx >= ex.signal.length-1){ idx=0; fired=0; showAlert(null); setInbox(0); }
+  playing=true; $("play").textContent="⏸ Pause"; last=performance.now(); raf=requestAnimationFrame(tick);
+}
+function pause(){ playing=false; cancelAnimationFrame(raf); const p=$("play"); if(p) p.textContent="▶ Play"; }
+function tick(now){
+  const n = ex.signal.length, perSec = Math.max(n/14, 4)*speed;      // whole replay lasts ~14 s at normal speed
+  idx = Math.min(idx + (now-last)/1000*perSec, n-1); last = now;
+  render(false);
+  if (idx >= n-1){ pause(); render(true); return; }
+  raf = requestAnimationFrame(tick);
+}
+
+// ---------- SVG helpers ----------
+function el(tag, attrs, parent){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
+function scale(d0,d1,r0,r1){ return v => r0 + (v-d0)/((d1-d0)||1)*(r1-r0); }
+function path(xs,ys,upto){ let d="",pen=false; for(let i=0;i<=upto;i++){ if(ys[i]==null||isNaN(ys[i])){pen=false;continue} d+=(pen?"L":"M")+xs(i).toFixed(1)+" "+ys[i].toFixed(1)+" "; pen=true; } return d; }
+function fmt(v){ return Math.abs(v)>=100? v.toFixed(0) : Math.abs(v)>=1? v.toFixed(2) : v.toFixed(4); }
+
+function render(final){
+  const n = ex.signal.length, i = Math.floor(idx), W=640, L=46, R=10;
+  const svg = el("svg",{viewBox:"0 0 "+W+" "+(ex.bins?500:410),role:"img","aria-label":"replay"});
+  const X = scale(0,n-1,L,W-R);
+  // --- signal panel
+  const sy0=18, sy1=170;
+  const vals = ex.signal.filter(v=>v!=null);
+  const mn=Math.min(...vals), mx=Math.max(...vals), pad=(mx-mn)*.08||1, Y0=scale(mn-pad,mx+pad,sy1,sy0), Y=v=>Math.min(Math.max(Y0(v),sy0),sy1);   // band is clipped to the plot
+  el("text",{x:L,y:12,class:"lbl"},svg).textContent = ex.signal_name;
+  for(let g=0; g<=3; g++){ const v=mn-pad+(mx-mn+2*pad)*g/3, y=Y(v); el("line",{x1:L,x2:W-R,y1:y,y2:y,stroke:"#3a4068","stroke-width":.5},svg); el("text",{x:L-6,y:y+4,class:"axis","text-anchor":"end"},svg).textContent=fmt(v); }
+  if (ex.window){ const a=X(ex.window.i0), b=X(ex.window.i1); el("rect",{x:a,y:sy0,width:b-a,height:sy1-sy0,fill:"#ffc857","fill-opacity":.10},svg); el("text",{x:a+4,y:sy0+12,class:"axis"},svg).textContent=ex.window.label; }
+  if (ex.lo){ let up="",dn=[],ok=true; for(let k=0;k<n;k++){ if(ex.lo[k]==null||ex.hi[k]==null){continue} up+=(up?"L":"M")+X(k).toFixed(1)+" "+Y(ex.hi[k]).toFixed(1)+" "; dn.push(X(k).toFixed(1)+" "+Y(ex.lo[k]).toFixed(1)); }
+    if(up) el("path",{d:up+dn.reverse().map(p=>"L"+p).join(" ")+"Z",fill:"#a9b0d6","fill-opacity":.18},svg); }
+  (ex.markers||[]).forEach(m=>{ const x=X(m.i); el("line",{x1:x,x2:x,y1:sy0,y2:sy1,stroke:"#5aa9ff","stroke-dasharray":"4 3","stroke-width":1.5},svg); el("text",{x:x+4,y:sy1-6,class:"axis",fill:"#5aa9ff"},svg).textContent=m.label; });
+  const ys = ex.signal.map(v=>v==null?null:Y(v));
+  el("path",{d:path(X,ys,i),fill:"none",stroke:"#2ee6a8","stroke-width":2},svg);
+  const firedNow = ex.alerts.filter(a=>a.i!=null && a.i<=i);
+  firedNow.forEach(a=>{ el("circle",{cx:X(a.i),cy:ys[a.i],r:6,fill:"#ff5d73",stroke:"#fff","stroke-width":1.5},svg); });
+  // --- score panel
+  const ty0=214, ty1=330, ratio=ex.ratio.map(v=>v==null?0:v), rmax=Math.max(2,...ratio)*1.1, T=scale(0,rmax,ty1,ty0);
+  el("text",{x:L,y:204,class:"lbl"},svg).textContent="score ÷ limit  (alert when above 1.0)";
+  el("line",{x1:L,x2:W-R,y1:T(1),y2:T(1),stroke:"#ff5d73","stroke-dasharray":"5 4","stroke-width":1.5},svg);
+  el("text",{x:L-6,y:T(1)+4,class:"axis","text-anchor":"end",fill:"#ff5d73"},svg).textContent="1.0";
+  el("text",{x:L-6,y:ty1+4,class:"axis","text-anchor":"end"},svg).textContent="0";
+  el("path",{d:path(X,ratio.map(T),i),fill:"none",stroke:"#ffc857","stroke-width":2},svg);
+  for(let k=0;k<=i;k++){ if(ratio[k]>1){ el("rect",{x:X(k)-.6,y:T(Math.min(ratio[k],rmax)),width:1.4,height:T(1)-T(Math.min(ratio[k],rmax)),fill:"#ff5d73","fill-opacity":.55},svg); } }
+  // time axis
+  [0,Math.floor(n/2),n-1].forEach(k=>el("text",{x:X(k),y:(ex.bins?352:358),class:"axis","text-anchor":k===0?"start":k===n-1?"end":"middle"},svg).textContent=ex.x[k]);
+  const px=X(i); el("line",{x1:px,x2:px,y1:sy0,y2:ty1,stroke:"#fff","stroke-opacity":.35},svg);
+  // --- PSI bins
+  if (ex.bins){
+    const j=Math.min(i,ex.bins.at.length-1), cur=ex.bins.at[j], ref=ex.bins.ref, by0=392, by1=480, nb=ref.length, bw=(W-L-R)/nb;
+    const B=scale(0,Math.max(.4,...cur,...ref)*1.1,by1,by0);
+    el("text",{x:L,y:384,class:"lbl"},svg).textContent=ex.bins.title+" (outline = reference 10%)";
+    cur.forEach((v,k)=>{ el("rect",{x:L+k*bw+4,y:B(v),width:bw-8,height:by1-B(v),fill:"#5aa9ff","fill-opacity":.85,rx:3},svg); el("rect",{x:L+k*bw+4,y:B(ref[k]),width:bw-8,height:by1-B(ref[k]),fill:"none",stroke:"#fff","stroke-opacity":.6,rx:3},svg); });
+  }
+  $("stage").replaceChildren(svg);
+  const v=document.createElement("div"); v.className="verdict";
+  v.innerHTML = (final||i>=n-1) ? "<b>Result:</b> "+esc(ex.verdict) : (firedNow.length? "<b>Alert fired.</b> The Monitor just built the Alert on the right." : "Replaying… the Monitor sees one value at a time.");
+  $("stage").appendChild(v);
+  $("scrub").value=i;
+  if (firedNow.length>fired){ fly(); showAlert(firedNow[firedNow.length-1].alert); }
+  if (firedNow.length<fired) showAlert(firedNow.length? firedNow[firedNow.length-1].alert : null);
+  fired=firedNow.length; setInbox(fired);
+}
+
+// ---------- non-time-series scenarios ----------
+function renderStatic(){
+  const box=document.createElement("div");
+  if (sc.kind==="flaky"){
+    const s=ex.score, pos=Math.min(s/3,1)*100, ev=ex.evidence;
+    box.innerHTML = '<h3>Failed build</h3><div class="kv"><span>project</span><span>'+esc(ex.project)+'</span><span>build</span><span>'+ex.build_id+'</span>'+
+      '<span>project flaky rate so far</span><span>'+(ev.project_flaky_rate==null?"–":(ev.project_flaky_rate*100).toFixed(1)+" %")+'</span>'+
+      '<span>fail rate of last 20 builds</span><span>'+(ev.recent_fail_rate==null?"–":(ev.recent_fail_rate*100).toFixed(0)+" %")+'</span>'+
+      '<span>previous build failed?</span><span>'+(ev.previous_build_failed==null?"–":ev.previous_build_failed?"yes":"no")+'</span>'+
+      '<span>model: flaky probability</span><span>'+(ex.prob*100).toFixed(1)+" %</span></div>"+
+      '<h3>Score = probability ÷ typical flaky rate</h3><div class="gauge"><i style="left:0;width:'+pos+'%;background:'+(s>=1?"var(--coral)":"var(--mint)")+'"></i><u style="left:33.3%"></u></div>'+
+      '<div class="small">score '+s.toFixed(2)+' · white line = 1.0 (typical failure) · scale 0 to 3</div>'+
+      '<div class="verdict">'+(sent? "<b>Alert sent.</b> Truth from re-runs of the same code: <b>"+esc(ex.truth)+"</b>. Triage decides what to do (re-run or page a human)." : "Press <b>Send to Triage</b> to emit the Alert.")+"</div>";
+  } else {
+    const W=640,H=300,L=40,n=ex.counts.length,bw=(W-L-10)/n, mx=Math.max(...ex.counts,...ex.recon,1), Y=scale(0,mx*1.1,H-40,16);
+    let g='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="event counts">';
+    ex.counts.forEach((c,k)=>{ const r=Math.max(ex.recon[k],0), x=L+k*bw, gap=Math.abs(c-r), hot=gap>mx*.18;
+      g+='<rect x="'+(x+1)+'" y="'+Y(c)+'" width="'+(bw/2-1)+'" height="'+(H-40-Y(c))+'" fill="'+(hot?"#ff5d73":"#2ee6a8")+'"/>';
+      g+='<rect x="'+(x+bw/2)+'" y="'+Y(r)+'" width="'+(bw/2-1)+'" height="'+(H-40-Y(r))+'" fill="#a9b0d6" fill-opacity=".55"/>';
+      if(k%2===0) g+='<text x="'+(x+bw/2)+'" y="'+(H-24)+'" class="axis" text-anchor="middle">'+ex.events[k].replace("E","")+'</text>'; });
+    g+='<text x="'+L+'" y="12" class="lbl">log(1 + count) for each of the 29 event types · green/red = this block · grey = what normal predicts</text></svg>';
+    const s=ex.ratio, pos=Math.min(s/3,1)*100;
+    box.innerHTML = '<h3>Block '+esc(ex.block)+'</h3>'+g+'<div class="gauge"><i style="left:0;width:'+pos+'%;background:'+(s>1?"var(--coral)":"var(--mint)")+'"></i><u style="left:33.3%"></u></div>'+
+      '<div class="small">reconstruction error ÷ limit = '+s.toFixed(2)+' · white line = 1.0 · red bars = events that do not fit (they become <b>top_events</b>)</div>'+
+      '<div class="verdict">'+(sent? (ex.alert? "<b>Alert sent.</b> True label of this block: <b>"+ex.truth+"</b>. " + (ex.truth==="Success"?"A false alarm: the price of 100% recall.":"A real failure caught.") : "<b>No alert:</b> below the limit. True label: <b>"+ex.truth+"</b>.") : "Press <b>Send to Triage</b>"+(ex.alert?" to emit the Alert.":": this block is below the limit, so nothing will be sent."))+"</div>";
+  }
+  $("stage").replaceChildren(box);
+}
+
+buildTabs(); selectScenario(0);
+</script>
+</body>
+</html>
