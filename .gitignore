@@ -29,3 +29,6 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+/data/triage/
+/logs/triage_eval/
