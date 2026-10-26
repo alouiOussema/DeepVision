@@ -122,12 +122,12 @@ class DiagnosisAgent:
             return [], []
         query = " ".join([category.value.replace("_", " "), hyps[0].sub_cause.replace("_", " ")]
                          + [e.statement for e in f.evidence[1:4]])
-        hits = self.kb.search(query, k=3, boost=category)
+        hits = self.kb.search(query, k=3, boost=category, source=inc.source)
         close = len(hyps) > 1 and hyps[1].probability > 0.25 and hyps[1].category is not category
-        runner_up = self.kb.runbook_for(hyps[1].category) if close else None
+        runner_up = self.kb.runbook_for(hyps[1].category, inc.source) if close else None
         if runner_up is not None:      # let the explanation say why it is NOT the runner-up
             hits += [(c, 0.0) for c in self.kb.index.chunks if c.doc is runner_up][:1]
-        own = self.kb.runbook_for(category)
+        own = self.kb.runbook_for(category, inc.source)
         refs = ([own.id] if own else []) + [c.ref for c, _ in hits]
         excerpts = [(c.ref, f"{c.doc.title} / {c.section}: {c.text}") for c, _ in hits]
         return excerpts, list(dict.fromkeys(refs))

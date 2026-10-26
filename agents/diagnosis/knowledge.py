@@ -148,8 +148,9 @@ class Index:
         return m / (np.linalg.norm(m, axis=1, keepdims=True) + 1e-12)
 
     def search(self, query: str, k: int = 3, boost: Category | None = None,
-               kinds: tuple[str, ...] = ("runbook", "incident")) -> list[tuple[Chunk, float]]:
-        keep = [i for i, c in enumerate(self.chunks) if c.doc.kind in kinds]
+               kinds: tuple[str, ...] = ("runbook", "incident"), source: str | None = None) -> list[tuple[Chunk, float]]:
+        """source: drop documents tagged for ANOTHER source (an HDFS runbook for a web-service incident)."""
+        keep = [i for i, c in enumerate(self.chunks) if c.doc.kind in kinds and _fits(c.doc, source)]
         if not keep:
             return []
         rankings = [np.argsort(-self.bm25.scores(tokens(query))[keep])]
@@ -179,6 +180,11 @@ class Index:
         return "bm25+embeddings" if self.vectors is not None else "bm25"
 
 
+def _fits(doc: Doc, source: str | None) -> bool:
+    sources = {t.split(":", 1)[1] for t in doc.tags if t.startswith("source:")}
+    return source is None or not sources or source in sources
+
+
 # ------------------------------------------------------------------ the knowledge base
 class KnowledgeBase:
     def __init__(self, root: Path = paths.KB, embed_model: str | None = "nomic-embed-text"):
@@ -199,11 +205,14 @@ class KnowledgeBase:
     def incidents(self) -> list[Doc]:
         return [d for d in self.docs if d.kind == "incident"]
 
-    def runbook_for(self, category: Category) -> Doc | None:
-        return next((d for d in self.runbooks if d.category == category), None)
+    def runbook_for(self, category: Category, source: str | None = None) -> Doc | None:
+        """The runbook of a cause, the one written for this source first (infra: HDFS vs services)."""
+        fits = [d for d in self.runbooks if d.category == category and _fits(d, source)]
+        return next((d for d in fits if f"source:{source}" in d.tags), fits[0] if fits else None)
 
-    def search(self, query: str, k: int = 3, boost: Category | None = None) -> list[tuple[Chunk, float]]:
-        return self.index.search(query, k, boost)
+    def search(self, query: str, k: int = 3, boost: Category | None = None,
+               source: str | None = None) -> list[tuple[Chunk, float]]:
+        return self.index.search(query, k, boost, source=source)
 
     def mentions(self, pattern: str) -> bool:
         """Is this HDFS event pattern (e.g. 'E2+E3+E4') described anywhere?"""

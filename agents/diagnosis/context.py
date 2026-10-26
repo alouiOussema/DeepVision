@@ -43,10 +43,13 @@ class ContextStore:
 
     # ------------------------------------------------------------------ metrics
     def metric_window(self, dataset: str, start: datetime, end: datetime) -> pd.DataFrame:
+        """Rows with start <= timestamp < end. Binary search (called many times per incident):
+        the frames are sorted by timestamp (P1's loaders and the simulator write them that way)."""
         df = self.metrics.get(dataset)
         if df is None or df.empty:
             return pd.DataFrame()
-        return df[(df["timestamp"] >= start) & (df["timestamp"] < end)]
+        t = df["timestamp"]
+        return df.iloc[t.searchsorted(pd.Timestamp(start)): t.searchsorted(pd.Timestamp(end))]
 
     # ------------------------------------------------------------------ peers
     def peers_near(self, inc: Incident, hours: float) -> list[Incident]:

@@ -43,7 +43,15 @@ def shape(before: np.ndarray, after: np.ndarray) -> tuple[float, float]:
 
 
 def onset(ctx: ContextStore, inc: Incident, first_change: datetime, cfg: DiagnosisConfig) -> datetime | None:
-    """First minute the metrics left their level of the hour before `first_change` (10-minute mean).
+    """When did the metrics start to degrade?
+
+        level   = median of the hour before the first suspect change
+        crossed = first minute the 10-minute mean is above level x (1 + moved limit)
+        onset   = the first RAW minute above the limit inside that 10-minute window
+
+    Measured on the train deploys (96 with a known guilty change): this simple estimator blames the
+    right release 90 times; a change-point estimator (max of mean-after minus mean-before) only 69,
+    because noisy error-rate minutes pull it too early. Simple wins (see README, "what we tried").
     None if no metric data, or if nothing moved enough to tell."""
     base = ctx.metric_window(inc.dataset, first_change - timedelta(minutes=cfg.before_min), first_change)
     look = ctx.metric_window(inc.dataset, first_change - timedelta(minutes=30), inc.end + timedelta(minutes=5))
@@ -53,15 +61,13 @@ def onset(ctx: ContextStore, inc: Incident, first_change: datetime, cfg: Diagnos
     for col in SHORT:
         if col not in look:
             continue
-        level = float(np.median(base[col]))
-        limit = level * (1 + cfg.moved_change.get(col, cfg.moved_default))
+        limit = float(np.median(base[col])) * (1 + cfg.moved_change.get(col, cfg.moved_default))
         raw = look[col].to_numpy(float)
         smooth = pd.Series(raw).rolling(ONSET_SMOOTH, min_periods=ONSET_SMOOTH).mean().to_numpy()
         above = np.flatnonzero(smooth > limit)
-        if len(above):          # the mean crossed at k: the first raw minute above the limit in its window
+        if len(above):
             k = above[0]
-            first = k - ONSET_SMOOTH + 1 + int(np.argmax(raw[k - ONSET_SMOOTH + 1: k + 1] > limit))
-            found.append(look["timestamp"].iloc[first])
+            found.append(look["timestamp"].iloc[k - ONSET_SMOOTH + 1 + int(np.argmax(raw[k - ONSET_SMOOTH + 1: k + 1] > limit))])
     return min(found).to_pydatetime() if found else None
 
 
