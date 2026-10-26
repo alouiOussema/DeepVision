@@ -32,3 +32,6 @@ Thumbs.db
 
 /data/triage/
 /logs/triage_eval/
+
+# Diagnosis (P3): benchmark, trained classifier, embeddings cache, approval inbox
+/data/diagnosis/
