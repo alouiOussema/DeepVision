@@ -1,14 +1,15 @@
 """Shared contracts.
 
-Alert    : P1's format (agents/monitor/alert.py in his repo). Do not change it here; change it with P1.
-Incident : what Triage (P2) sends to Diagnosis (P3).
+Alert     : P1's format (agents/monitor/alert.py in his repo). Do not change it here; change it with P1.
+Incident  : what Triage (P2) sends to Diagnosis (P3).
+Diagnosis : what Diagnosis (P3) sends to Decision (P4).
 """
 from __future__ import annotations
 
 import json
 import math
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from uuid import uuid4
 
@@ -131,3 +132,70 @@ class Incident:
         d["severity"], d["decision"] = self.severity.value, self.decision.value
         d["alerts"] = [a.to_dict() for a in self.alerts]
         return d
+
+# -------------------------------------------------------- Diagnosis (P3 -> P4) ---
+class Category(str, Enum):
+    """Root causes the Diagnosis agent can name (the team plan's list, plus what the data needed)."""
+    FLAKY_TEST = "flaky_test"             # the test is unreliable, the code is fine -> re-run
+    CODE_REGRESSION = "code_regression"   # a commit really broke the build -> the author fixes it
+    BAD_DEPLOY = "bad_deploy"             # a new release degraded the service -> roll back
+    CONFIG_CHANGE = "config_change"       # a config push (not a code release) broke something -> revert it
+    INFRA = "infra"                       # machines, network, storage: nothing we shipped
+    DATA_DRIFT = "data_drift"             # model inputs slowly changed -> retraining question
+    DATA_QUALITY = "data_quality"         # the data itself is broken or strange (missing, outlier burst)
+    UNKNOWN = "unknown"                   # the evidence does not point anywhere: a human must look
+
+
+@dataclass
+class Evidence:
+    """One verifiable fact the diagnosis rests on. The LLM may only cite these ids."""
+    id: str                     # "E1", "E2", ... (unique inside one Diagnosis)
+    kind: str                   # what was checked, e.g. "deploy_before", "metric_shape", "flaky_probability"
+    statement: str              # one sentence, with the numbers, a human can check
+    source: str                 # where it comes from: "alert" | "change_log" | "metrics" | "logs" | "knowledge_base"
+    supports: dict = field(default_factory=dict)   # {category value: weight}: + for, - against (log-odds)
+    data: dict = field(default_factory=dict)       # the raw numbers behind the statement
+
+
+@dataclass
+class Hypothesis:
+    category: Category
+    probability: float          # 0-1, all hypotheses of one diagnosis sum to 1
+    sub_cause: str = ""         # finer cause when the evidence allows it, e.g. "resource_leak"
+
+
+@dataclass
+class Diagnosis:
+    incident_id: str
+    category: Category
+    explanation: str                    # short cause, cites evidence ids like [E1] and runbooks like [RB-bad-deploy]
+    evidence: list[Evidence]
+    confidence: float                   # 0-1: how sure P3 is of `category` (P4 multiplies it by the action risk)
+    sub_cause: str = ""
+    suspect: str = ""                   # the change to undo when there is one (release / config id) -> P5's target
+    hypotheses: list[Hypothesis] = field(default_factory=list)   # ranked alternatives, best first
+    suggested_action: str = "escalate"  # hint for P4: rerun / rollback / retrain / escalate / none
+    needs_human: bool = False           # True when P3 itself thinks nobody should act on this alone
+    runbooks: list[str] = field(default_factory=list)            # knowledge-base ids that were used
+    method: str = ""                    # how it was produced, e.g. "rules+ml+llm(llama3.1:8b)"
+    warnings: list[str] = field(default_factory=list)            # guardrails that fired (LLM misread, ...)
+    id: str = field(default_factory=lambda: f"diag-{uuid4().hex[:8]}")
+    created: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+    def to_dict(self) -> dict:
+        d = asdict(self)
+        d["category"] = self.category.value
+        d["hypotheses"] = [{**asdict(h), "category": h.category.value} for h in self.hypotheses]
+        d["created"] = self.created.isoformat()
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Diagnosis":
+        d = dict(d)
+        d["category"] = Category(d["category"])
+        d["evidence"] = [e if isinstance(e, Evidence) else Evidence(**e) for e in d.get("evidence", [])]
+        d["hypotheses"] = [h if isinstance(h, Hypothesis) else Hypothesis(**{**h, "category": Category(h["category"])})
+                           for h in d.get("hypotheses", [])]
+        if "created" in d:
+            d["created"] = _to_dt(d["created"])
+        return cls(**{k: d[k] for k in cls.__dataclass_fields__ if k in d})
