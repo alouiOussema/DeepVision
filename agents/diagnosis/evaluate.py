@@ -147,6 +147,9 @@ def main():
     for name, m in methods.items():
         diags[name], secs = run(m, test)
         results[name] = {**score(test, diags[name]), "ms_per_incident": round(1000 * secs, 1)}
+    # in production P3 only receives what Triage decided is an INCIDENT (the rest is watch / noise)
+    sent = [k for k, c in enumerate(test) if c.incident.decision.value == "incident"]
+    results["hybrid | sent by Triage"] = score([test[k] for k in sent], [diags["hybrid"][k] for k in sent])
 
     if args.llm:
         sub = sample(test, args.n_llm)
@@ -161,8 +164,8 @@ def main():
             warn = [w for x in d for w in x.warnings]
             results[f"hybrid+llm({model})"] = {
                 **score(sub, d), "ms_per_incident": round(1000 * secs, 1),
-                "llm_answer_passed_factcheck": round(np.mean([not any(w.startswith("LLM") and "argues" not in w
-                                                                      for w in x.warnings) for x in d]), 3),
+                "llm_answer_passed_factcheck": round(float(np.mean([not any(w.startswith("LLM") and "argues" not in w
+                                                                            for w in x.warnings) for x in d])), 3),
                 "llm_invented_ids": sum("unknown id" in w for w in warn),
                 "llm_invented_numbers": sum("number(s) found nowhere" in w for w in warn),
                 "llm_disagreed": sum("LLM argues" in w for w in warn),
