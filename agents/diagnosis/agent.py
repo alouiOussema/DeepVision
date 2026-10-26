@@ -14,6 +14,8 @@ Confidence policy (written in code, not left to the model):
   - x llm_disagree_penalty if the LLM argues for another cause (it can never change the cause itself)
   - top probability < min_probability  -> category UNKNOWN (we do not guess)
   - confidence < human_below           -> needs_human = True (P4 should not act alone)
+  - UNKNOWN always needs a human, EXCEPT a recognised no-fault (recovery after a rollback, a known
+    false alarm confirmed by an operator) with enough confidence: action "none", nobody paged
 """
 from __future__ import annotations
 
@@ -28,6 +30,8 @@ from .knowledge import KnowledgeBase
 from .llm import LLMExplainer, LLMResult, template_explanation
 
 SUSPECT_KIND = {Category.BAD_DEPLOY: "deploy", Category.CONFIG_CHANGE: "config"}   # cause -> change to undo
+# "unknown" sub-causes that are RECOGNISED as no fault: nothing to fix, nobody to page (if confident)
+NO_FAULT = {"recovery", "known_false_alarm"}
 
 
 def blend(rules: dict[Category, float], ml: dict[Category, float] | None, w: float) -> dict[Category, float]:
@@ -101,15 +105,16 @@ class DiagnosisAgent:
 
         # step 5: what P4 receives
         confidence = round(min(max(confidence, 0.0), 1.0), 3)
-        needs_human = category is Category.UNKNOWN or confidence < self.cfg.human_below
+        no_fault = category is Category.UNKNOWN and shown.sub_cause in NO_FAULT
+        needs_human = (category is Category.UNKNOWN and not no_fault) or confidence < self.cfg.human_below
+        action = "escalate" if needs_human else "none" if no_fault else self.cfg.actions[category]
         kind = SUSPECT_KIND.get(category)
         suspect = f.suspect.id if f.suspect is not None and f.suspect.kind == kind else ""
         return Diagnosis(
             incident_id=inc.id, category=category, sub_cause=shown.sub_cause, suspect=suspect,
-            explanation=explanation,
-            evidence=f.evidence, confidence=confidence, hypotheses=hyps[:4],
-            suggested_action=self.cfg.actions[category] if not needs_human else "escalate",
-            needs_human=needs_human, runbooks=runbooks, method=self.method, warnings=warnings)
+            explanation=explanation, evidence=f.evidence, confidence=confidence, hypotheses=hyps[:4],
+            suggested_action=action, needs_human=needs_human, runbooks=runbooks, method=self.method,
+            warnings=warnings)
 
     def run(self, incidents: list[Incident], ctx: ContextStore | None = None) -> list[Diagnosis]:
         """A whole batch: every incident sees the others as peers (several CI projects red at once...)."""

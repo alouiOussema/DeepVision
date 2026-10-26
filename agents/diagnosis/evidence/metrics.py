@@ -71,21 +71,29 @@ def onset(ctx: ContextStore, inc: Incident, first_change: datetime, cfg: Diagnos
     return min(found).to_pydatetime() if found else None
 
 
-def recovery(ctx: ContextStore, inc: Incident, cfg: DiagnosisConfig) -> dict[str, float] | None:
-    """Relative change across the incident start, if every metric that moved went DOWN (back to normal)."""
+def recovery(ctx: ContextStore, inc: Incident, cfg: DiagnosisConfig,
+             healthy_before: datetime | None = None) -> dict[str, float] | None:
+    """Relative change across the incident start, if the metrics went DOWN and, when we know when the
+    trouble began (`healthy_before`, the suspect change), came back to the level of the hour before it.
+    A dip in the middle of a degradation that is still going on is NOT a recovery: silencing it
+    would hide a real fault (2 such cases out of 80 before this check)."""
     before = ctx.metric_window(inc.dataset, inc.start - timedelta(minutes=RECOVERY_MIN), inc.start - timedelta(minutes=2))
     after = ctx.metric_window(inc.dataset, inc.start, inc.start + timedelta(minutes=RECOVERY_MIN))
     if before.empty or after.empty:
         return None
     rel = {c: float(after[c].mean() / max(before[c].mean(), 1e-12) - 1) for c in SHORT if c in before}
     limit = {c: cfg.moved_change.get(c, cfg.moved_default) for c in rel}
-    if any(r < -limit[c] for c, r in rel.items()) and not any(r > limit[c] for c, r in rel.items()):
-        return rel
-    return None
+    if not any(r < -limit[c] for c, r in rel.items()) or any(r > limit[c] for c, r in rel.items()):
+        return None
+    if healthy_before is not None:
+        healthy = ctx.metric_window(inc.dataset, healthy_before - timedelta(minutes=cfg.before_min), healthy_before)
+        if not healthy.empty and any(after[c].mean() > healthy[c].median() * (1 + limit[c]) for c in rel):
+            return None          # went down, but is still above the healthy level: not over yet
+    return rel
 
 
 def collect(inc: Incident, ctx: ContextStore, cfg: DiagnosisConfig, f) -> None:
-    back = recovery(ctx, inc, cfg)
+    back = recovery(ctx, inc, cfg, f.suspect.timestamp if f.suspect is not None else None)
     if back is not None:      # the detector also fires when a degradation ENDS (rollback, fault over)
         f.features["recovery"] = 1.0
         f.sub_causes[C.UNKNOWN] = "recovery"

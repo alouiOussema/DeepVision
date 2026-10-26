@@ -17,6 +17,7 @@ Metrics
     auto_rate               share P3 lets P4 act on without a human (needs_human = False)
     auto_accuracy           accuracy on those: the number that matters for autonomy
     wrong_auto_actions      rollback / rerun / retrain suggested without a human AND wrong cause or release
+    silenced_faults         "nothing to do" (recovery, known false alarm) said without a human on a REAL fault
     ece                     calibration: |confidence - accuracy| averaged over 10 bins (0 = perfect)
 """
 from __future__ import annotations
@@ -76,6 +77,9 @@ def score(cases: list[Case], diags: list[Diagnosis]) -> dict:
         wrong_target = d.suggested_action == "rollback" and d.suspect != c.truth_suspect
         return c.truth != d.category or wrong_target
 
+    def silenced(c: Case, d: Diagnosis) -> bool:      # "nothing to do" said alone, on a real fault
+        return not d.needs_human and d.suggested_action == "none" and c.truth is not Category.UNKNOWN
+
     bins = np.minimum((conf * 10).astype(int), 9)
     ece = sum(abs(conf[bins == b].mean() - ok[bins == b].mean()) * (bins == b).mean() for b in range(10) if (bins == b).any())
     fam = defaultdict(list)
@@ -90,6 +94,7 @@ def score(cases: list[Case], diags: list[Diagnosis]) -> dict:
         "auto_rate": round(float(auto.mean()), 3),
         "auto_accuracy": round(float(ok[auto].mean()), 3) if auto.any() else None,
         "wrong_auto_actions": int(sum(wrong_action(c, d) for c, d in zip(cases, diags))),
+        "silenced_faults": int(sum(silenced(c, d) for c, d in zip(cases, diags))),
         "ece": round(float(ece), 3),
         "per_family": {k: round(float(np.mean(v)), 3) for k, v in sorted(fam.items())},
     }
@@ -179,7 +184,7 @@ def main():
 
 def show(results: dict) -> None:
     cols = ["n", "accuracy", "macro_f1", "sub_cause_acc", "suspect_acc", "auto_rate", "auto_accuracy",
-            "wrong_auto_actions", "ece", "ms_per_incident"]
+            "wrong_auto_actions", "silenced_faults", "ece", "ms_per_incident"]
     print(f"{'method':32s}" + "".join(f"{c[:13]:>14s}" for c in cols))
     for name, r in results.items():
         print(f"{name:32s}" + "".join(f"{'-' if r.get(c) is None else r.get(c)!s:>14s}" for c in cols))

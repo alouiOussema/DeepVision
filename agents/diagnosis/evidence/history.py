@@ -12,16 +12,18 @@ from common.schemas import Incident
 MIN_SIMILARITY = 0.6
 
 
-def tags(inc: Incident, f) -> set[str]:
+def tags(inc: Incident, evidence) -> set[str]:
+    """Describes an incident by what it is AND what the evidence found. Also written into the
+    knowledge base when a human approves a diagnosis (feedback.py), so both sides match."""
     out = {f"source:{inc.source}", f"dataset:{inc.dataset}", f"kind:{inc.kind}"}
     out |= {f"feature:{x}" for x in inc.features}
-    out |= {f"evidence:{e.kind}" for e in f.evidence if e.kind not in ("triage_summary", "similar_incident")}
+    out |= {f"evidence:{e.kind}" for e in evidence if e.kind not in ("triage_summary", "similar_incident")}
     out |= {f"event:{e['event']}" for a in inc.alerts[:1] for e in a.details.get("top_events", [])}
     return out
 
 
 def collect(inc: Incident, f, kb) -> None:
-    best = kb.similar_incidents(tags(inc, f), k=1)
+    best = kb.similar_incidents(tags(inc, f.evidence), k=1)
     if not best:
         return
     doc, sim = best[0]
