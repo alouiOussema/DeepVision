@@ -226,3 +226,24 @@ def test_langgraph_node_contract():
                                       "context": ctx(metrics(lat_from=0, lat_mult=1.6), deploy(0))})
     assert [d.incident_id for d in out["diagnoses"]] == [inc.id]
     assert out["log"][0]["category"] == "bad_deploy"
+
+
+def test_pipeline_graph_runs_monitor_triage_diagnosis():
+    """The team graph (pipeline.py): monitor -> triage -> to_diagnosis -> diagnosis, through LangGraph."""
+    pytest.importorskip("langgraph")
+    from pipeline import build_graph, make_layer2
+    from agents.triage.memory import Memory
+
+    start = T0 + timedelta(minutes=5)
+    alert = {"id": "alert-1", "timestamp": start.isoformat(), "source": "metrics", "signal": "latency_ms",
+             "score": 5.0, "kind": "anomaly", "dataset": "deploy",            # = P1's monitor_node format
+             "details": {"voters": ["rolling"], "start": str(start), "end": str(start + timedelta(minutes=30)),
+                         "n_points": 31}}
+    monitor = lambda state: {"alerts": [alert], "context": ctx(metrics(lat_from=0, lat_mult=1.6), deploy(0)),
+                             "log": [{"node": "monitor"}]}
+    graph = build_graph(monitor, make_layer2(Memory(), use_llm=False), make_diagnosis_node(AGENT))
+    out = graph.invoke({"log": []})
+    assert [i.id for i in out["to_diagnosis"]] == [d.incident_id for d in out["diagnoses"]]
+    d = out["diagnoses"][0]
+    assert d.category == Category.BAD_DEPLOY and d.suspect == "release-001"
+    assert [x.get("node", x.get("agent")) for x in out["log"]][-1] == "diagnosis"

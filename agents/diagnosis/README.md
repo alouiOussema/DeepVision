@@ -67,14 +67,24 @@ python -m pytest tests/test_diagnosis.py         # 18 tests, no Ollama needed
 Ollama is optional: `ollama pull nomic-embed-text` for embeddings, `llama3.1:8b` or `mistral:instruct` for explanations.
 Without it the agent uses BM25 and template explanations.
 
-### In the orchestrator (P4)
+### In the team pipeline (LangGraph)
 
-```python
-from agents.diagnosis.node import make_diagnosis_node
-graph.add_node("diagnosis", make_diagnosis_node(llm_model="llama3.1:8b"))   # or None: no LLM
-graph.add_edge("to_diagnosis", "diagnosis")
-# reads state["to_diagnosis"] (and optional state["context"]: ContextStore) -> writes state["diagnoses"], state["log"]
+Diagnosis is the node after Triage in [pipeline.py](../../pipeline.py), the same way Triage follows the Monitor:
+
 ```
+monitor ──> layer1_rules ──┬──> layer2_agent ──> to_diagnosis ──> diagnosis ──> END
+                           └───────────────────> to_diagnosis ──> diagnosis ──> END
+```
+
+```bash
+python pipeline.py           # replay of P1's alerts (needs data/alerts.csv), falls back to 'sim' without it
+python pipeline.py sim       # P1's deploy simulator -> P1's detector -> Triage -> Diagnosis, no data files
+```
+
+The node reads `state["to_diagnosis"]` and, when the monitor node provides it, `state["context"]` (a
+`ContextStore`: change log + raw metrics; without it there is no release to blame). It writes
+`state["diagnoses"]` for P4 and appends to `state["log"]`. With an LLM:
+`build_graph(monitor, layer2, make_diagnosis_node(llm_model="llama3.1:8b"))`.
 
 ## Data
 

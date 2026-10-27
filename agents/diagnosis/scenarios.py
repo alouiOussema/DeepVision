@@ -77,10 +77,12 @@ def _inject(metrics: pd.DataFrame, deploys: pd.DataFrame, rng, n_config=3, n_inf
     return m, pd.DataFrame(pushes, columns=["timestamp"]), faults
 
 
-def deploy_cases(seed: int, split: str) -> list[Case]:
+def simulate_deploy(seed: int):
+    """P1's deploy simulator + our config / infra faults -> P1's rolling detector.
+    Returns (P1's Alert objects, ContextStore with the change log and the metrics, faults with their truth).
+    Also used by pipeline.py to run the whole graph without downloading anything."""
     from agents.monitor.factory import fit_detector, make_detector, slice_period
     from agents.monitor.series_monitor import SeriesMonitor
-    from agents.triage.agent import RuleTriage
     from config import settings
     from ingest.deploy import simulate
 
@@ -97,9 +99,17 @@ def deploy_cases(seed: int, split: str) -> list[Case]:
               for f in settings.FEATURES["deploy"]}
     monitor = SeriesMonitor(bundle, "deploy", min_votes=settings.MIN_VOTES,
                             max_gap_hours=settings.MERGE_GAP_HOURS["deploy"])
-    alerts = [Alert.from_dict({**a.to_row(), "details": a.details}) for a in monitor.run(test)]
+    ctx = ContextStore.from_deploy_table(metrics, deploys, config_pushes=pushes)
+    return list(monitor.run(test)), ctx, faults
+
+
+def deploy_cases(seed: int, split: str) -> list[Case]:
+    from agents.triage.agent import RuleTriage
+
+    p1_alerts, ctx, faults = simulate_deploy(seed)
+    alerts = [Alert.from_dict({**a.to_row(), "details": a.details}) for a in p1_alerts]
     incidents = RuleTriage(id_prefix=f"DEP{seed}").process(alerts)
-    ctx = ContextStore.from_deploy_table(metrics, deploys, config_pushes=pushes).with_peers(incidents)
+    ctx = ctx.with_peers(incidents)
 
     cases = []
     for inc in incidents:
