@@ -3,6 +3,7 @@
 Alert     : P1's format (agents/monitor/alert.py in his repo). Do not change it here; change it with P1.
 Incident  : what Triage (P2) sends to Diagnosis (P3).
 Diagnosis : what Diagnosis (P3) sends to Decision (P4).
+ActionDecision : what Decision (P4) sends to Action (P5).
 """
 from __future__ import annotations
 
@@ -198,4 +199,75 @@ class Diagnosis:
                            for h in d.get("hypotheses", [])]
         if "created" in d:
             d["created"] = _to_dt(d["created"])
+        return cls(**{k: d[k] for k in cls.__dataclass_fields__ if k in d})
+
+
+# ------------------------------------------------------ ActionDecision (P4 -> P5) ---
+class Action(str, Enum):
+    """What the Action agent (P5) can be asked to do."""
+    RERUN = "rerun"           # re-run the failed CI job / test (once)
+    ROLLBACK = "rollback"     # undo the release or config push named in `target`
+    RETRAIN = "retrain"       # retrain the model; a human approves the DEPLOY of the new one
+    ESCALATE = "escalate"     # tell a human (developer / on-call) with the evidence summary; change nothing
+    NONE = "none"             # recognised no-fault: nothing to do, nobody to page (logged)
+
+
+class Route(str, Enum):
+    """How the Decision agent sent the case."""
+    ACT = "act"               # safe and confident: P5 may go ahead alone
+    APPROVAL = "approval"     # a human must approve this exact action first
+    ESCALATE = "escalate"     # no automatic action: a human takes over
+    NONE = "none"             # nothing to do
+
+
+class ActionStatus(str, Enum):
+    APPROVED = "approved"                 # P5 may execute it (policy or human said yes)
+    PENDING_APPROVAL = "pending_approval" # waiting for the approval page
+    REJECTED = "rejected"                 # a human said no: nothing is executed
+    CLOSED = "closed"                     # nothing to execute (action none)
+    # set by P5 through ActionInbox.report(...):
+    EXECUTED = "executed"                 # done and verified
+    FAILED = "failed"                     # done, but the problem is still there / the action itself failed
+    REVERTED = "reverted"                 # done, made things worse, P5 undid it
+
+
+@dataclass
+class ActionDecision:
+    """One order from Decision (P4) to Action (P5). Read `status`: only `approved` may be executed."""
+    incident_id: str
+    diagnosis_id: str
+    category: Category                  # cause named by Diagnosis
+    action: Action                      # what to do
+    route: Route                        # how it was decided
+    status: ActionStatus
+    confidence: float                   # Diagnosis' confidence, as received
+    risk: str = ""                      # none | low | medium | high  (from the action risk table)
+    target: str = ""                    # release / config id to undo (rollback), "" otherwise
+    rule: str = ""                      # which policy rule decided, e.g. "table:bad_deploy" / "floor:0.5"
+    reasons: list[str] = field(default_factory=list)       # the decision trail, in order, readable by a human
+    summary: str = ""                   # what a human should know (P5 sends it when it escalates)
+    snapshot: dict = field(default_factory=dict)           # explanation, evidence, hypotheses, warnings of the diagnosis
+    constraints: dict = field(default_factory=dict)        # max_retries, verify_after_min, revert_if_worse, human_before_deploy
+    decided_by: str = "policy"          # "policy" or the name of the human who approved / rejected
+    note: str = ""                      # the human's note
+    decided_at: datetime | None = None  # when a human resolved it
+    result: str = ""                    # P5's detail line after execution
+    id: str = field(default_factory=lambda: f"act-{uuid4().hex[:8]}")
+    created: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+    def to_dict(self) -> dict:
+        d = asdict(self)
+        for k in ("category", "action", "route", "status"):
+            d[k] = getattr(self, k).value
+        d["created"] = self.created.isoformat()
+        d["decided_at"] = self.decided_at.isoformat() if self.decided_at else None
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "ActionDecision":
+        d = dict(d)
+        d["category"], d["action"] = Category(d["category"]), Action(d["action"])
+        d["route"], d["status"] = Route(d["route"]), ActionStatus(d["status"])
+        for k in ("created", "decided_at"):
+            d[k] = _to_dt(d[k]) if d.get(k) else (datetime.now(timezone.utc) if k == "created" else None)
         return cls(**{k: d[k] for k in cls.__dataclass_fields__ if k in d})

@@ -1,7 +1,12 @@
-"""The pipeline as a LangGraph graph: Monitor (P1) -> Triage layer 1 -> [layer 2] -> Diagnosis (P3).
+"""The pipeline as a LangGraph graph: Monitor (P1) -> Triage layer 1 -> [layer 2] -> Diagnosis (P3) -> Decision (P4).
 
     monitor ──> layer1_rules ──┬── any WATCH or HDFS pattern? ──> layer2_agent ──> to_diagnosis ──> diagnosis
                                └── no ──────────────────────────────────────────> to_diagnosis ──> diagnosis
+    diagnosis ──> decision ──┬── something P5 may execute now? ──> action (P5's node, when given) ──> END
+                             └── no (everything waits for a human, or nothing to do) ───────────────> END
+
+The Decision node writes every order to the action inbox (data/decision/action_inbox.json): P5 can read it
+there (ActionInbox().ready()) or take state["to_action"]. Risky orders wait for ui/decision_app.py.
 
 Three ways to feed the graph:
   - REPLAY (works now): the monitor node replays P1's real alerts from data/alerts.csv for a
@@ -34,6 +39,7 @@ from agents.triage.llm_agent import LLMTriage
 from agents.triage.memory import Memory
 from agents.diagnosis.context import ContextStore
 from agents.diagnosis.node import make_diagnosis_node
+from agents.decision.node import make_decision_node, route_after_decision
 from common.schemas import Alert, Decision, Incident
 
 
@@ -48,6 +54,9 @@ class PipelineState(TypedDict, total=False):
     to_diagnosis: list[Incident]          # what P3 receives
     context: ContextStore                 # change log + raw metrics around the alerts (read by P3)
     diagnoses: list                       # out of P3: one Diagnosis per incident -> Decision (P4)
+    decisions: list                       # out of P4: one ActionDecision per diagnosis
+    to_action: list                       # out of P4: the decisions P5 may execute now (status "approved")
+    pending_approval: list                # out of P4: the decisions waiting for a human (ui/decision_app.py)
     log: Annotated[list, operator.add]    # every node appends what it did
 
 
@@ -149,21 +158,30 @@ def to_diagnosis(state: PipelineState) -> dict:
     return {"to_diagnosis": sent, "log": [{"node": "to_diagnosis", "sent_to_P3": len(sent)}]}
 
 
-def build_graph(monitor_node, layer2_node, diagnosis_node=None):
+def build_graph(monitor_node, layer2_node, diagnosis_node=None, decision_node=None, action_node=None):
     """diagnosis_node: P3's node; by default rules + classifier + RAG, without LLM (fast).
-    make_diagnosis_node(llm_model="llama3.1:8b") adds the LLM explanations."""
+    make_diagnosis_node(llm_model="llama3.1:8b") adds the LLM explanations.
+    decision_node: P4's node; by default the policy of knowledge_base/action_risk_table.md.
+    action_node: P5's node. Without it the graph ends after Decision (orders wait in the action inbox)."""
     g = StateGraph(PipelineState)
     g.add_node("monitor", monitor_node)
     g.add_node("layer1_rules", layer1_rules)
     g.add_node("layer2_agent", layer2_node)
     g.add_node("to_diagnosis", to_diagnosis)
     g.add_node("diagnosis", diagnosis_node or make_diagnosis_node())
+    g.add_node("decision", decision_node or make_decision_node())
     g.set_entry_point("monitor")
     g.add_edge("monitor", "layer1_rules")
     g.add_conditional_edges("layer1_rules", needs_layer2, ["layer2_agent", "to_diagnosis"])
     g.add_edge("layer2_agent", "to_diagnosis")
     g.add_edge("to_diagnosis", "diagnosis")
-    g.add_edge("diagnosis", END)
+    g.add_edge("diagnosis", "decision")
+    if action_node is None:
+        g.add_edge("decision", END)
+    else:
+        g.add_node("action", action_node)
+        g.add_conditional_edges("decision", route_after_decision, {"action": "action", "end": END})
+        g.add_edge("action", END)
     return g.compile()
 
 
@@ -199,3 +217,7 @@ if __name__ == "__main__":
     for d in final.get("diagnoses", []):
         print(f"  {d.incident_id}  {d.category.value:14s} {d.sub_cause:20s} {d.suspect or '-':12s} "
               f"confidence {d.confidence:.2f} -> {d.suggested_action}{'  [needs a human]' if d.needs_human else ''}")
+    print("\nDecisions sent to Action (P5) / the approval page (python -m streamlit run ui/decision_app.py):")
+    for a in final.get("decisions", []):
+        print(f"  {a.incident_id}  {a.action.value:9s} {a.route.value:9s} {a.status.value:17s} "
+              f"{a.target or '-':12s} [{a.rule}]  {a.reasons[-1] if a.reasons else ''}")

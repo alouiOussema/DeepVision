@@ -228,11 +228,15 @@ def test_langgraph_node_contract():
     assert out["log"][0]["category"] == "bad_deploy"
 
 
-def test_pipeline_graph_runs_monitor_triage_diagnosis():
-    """The team graph (pipeline.py): monitor -> triage -> to_diagnosis -> diagnosis, through LangGraph."""
+def test_pipeline_graph_runs_monitor_triage_diagnosis(tmp_path):
+    """The team graph (pipeline.py): monitor -> triage -> to_diagnosis -> diagnosis -> decision, through LangGraph."""
     pytest.importorskip("langgraph")
     from pipeline import build_graph, make_layer2
     from agents.triage.memory import Memory
+    from agents.decision.agent import DecisionAgent
+    from agents.decision.inbox import ActionInbox
+    from agents.decision.log import DecisionLog
+    from agents.decision.node import make_decision_node
 
     start = T0 + timedelta(minutes=5)
     alert = {"id": "alert-1", "timestamp": start.isoformat(), "source": "metrics", "signal": "latency_ms",
@@ -241,9 +245,12 @@ def test_pipeline_graph_runs_monitor_triage_diagnosis():
                          "n_points": 31}}
     monitor = lambda state: {"alerts": [alert], "context": ctx(metrics(lat_from=0, lat_mult=1.6), deploy(0)),
                              "log": [{"node": "monitor"}]}
-    graph = build_graph(monitor, make_layer2(Memory(), use_llm=False), make_diagnosis_node(AGENT))
+    dlog = DecisionLog(tmp_path / "log.jsonl", tmp_path / "history.jsonl")      # Decision writes files: keep them in tmp
+    decision = make_decision_node(DecisionAgent(log=dlog), ActionInbox(tmp_path / "inbox.json", dlog))
+    graph = build_graph(monitor, make_layer2(Memory(), use_llm=False), make_diagnosis_node(AGENT), decision)
     out = graph.invoke({"log": []})
     assert [i.id for i in out["to_diagnosis"]] == [d.incident_id for d in out["diagnoses"]]
     d = out["diagnoses"][0]
     assert d.category == Category.BAD_DEPLOY and d.suspect == "release-001"
-    assert [x.get("node", x.get("agent")) for x in out["log"]][-1] == "diagnosis"
+    assert [x.get("node", x.get("agent")) for x in out["log"]][-2:] == ["diagnosis", "decision"]
+    assert [a.incident_id for a in out["decisions"]] == [d.incident_id]
