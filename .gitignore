@@ -39,3 +39,6 @@ Thumbs.db
 # Decision (P4): action inbox, decision history, decision log, evaluation
 /data/decision/
 /logs/decision_log.jsonl
+
+# Action (P5): claims, notifications, deploy requests, challengers, demo files
+/data/action/

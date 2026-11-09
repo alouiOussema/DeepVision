@@ -21,6 +21,7 @@ node provides it; without it, it still diagnoses, but cannot point to the releas
 
     py pipeline.py                 # runs the "Deploy · Jan 15-18" window, prints each node
     py pipeline.py sim             # the same graph on a held-out deploy simulation (no data files needed)
+    py pipeline.py sim --action    # ... ending with the Action agent (P5), in simulation (no real side effect)
 """
 from __future__ import annotations
 
@@ -57,6 +58,7 @@ class PipelineState(TypedDict, total=False):
     decisions: list                       # out of P4: one ActionDecision per diagnosis
     to_action: list                       # out of P4: the decisions P5 may execute now (status "approved")
     pending_approval: list                # out of P4: the decisions waiting for a human (ui/decision_app.py)
+    actions_done: list                    # out of P5: one ActionRun per order executed / failed / reverted / skipped
     log: Annotated[list, operator.add]    # every node appends what it did
 
 
@@ -195,18 +197,24 @@ def live_monitor_node():
 if __name__ == "__main__":
     import sys
 
-    mode = sys.argv[1] if len(sys.argv) > 1 else "deploy"
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    with_action = "--action" in sys.argv[1:]
+    action = None
+    if with_action:
+        from agents.action.node import make_action_node      # P5, simulation by default
+        action = make_action_node()
+    mode = args[0] if args else "deploy"
     if mode != "sim" and not paths.ALERTS.exists():
         print(f"{paths.ALERTS} not found (P1's alerts are not in git): running the 'sim' mode instead.\n")
         mode = "sim"
     if mode == "sim":
-        graph = build_graph(simulated_monitor(), make_layer2(Memory()))
+        graph = build_graph(simulated_monitor(), make_layer2(Memory()), action_node=action)
         print("Window: deploy simulation (P1's simulator -> P1's rolling detector)\n")
     else:
         w = WINDOWS[mode]
         history = RuleTriage(id_prefix="HIST").process(load_alerts(paths.ALERTS))
         ctx = deploy_context() if mode == "deploy" else None
-        graph = build_graph(replay_monitor(w, context=ctx), make_layer2(Memory(), history=history))
+        graph = build_graph(replay_monitor(w, context=ctx), make_layer2(Memory(), history=history), action_node=action)
         print(f"Window: {w.name}\n")
     final = {}
     for update in graph.stream({"log": []}, stream_mode="updates"):
@@ -221,3 +229,11 @@ if __name__ == "__main__":
     for a in final.get("decisions", []):
         print(f"  {a.incident_id}  {a.action.value:9s} {a.route.value:9s} {a.status.value:17s} "
               f"{a.target or '-':12s} [{a.rule}]  {a.reasons[-1] if a.reasons else ''}")
+    if with_action:
+        print("\nAction agent (P5) [simulation]: what was executed, verified and reported:")
+        if not final.get("actions_done"):
+            print("  nothing: no order was approved for execution in this run (rollbacks wait for ui/decision_app.py;"
+                  " run `python -m agents.action.run` after approving)")
+        for r in final.get("actions_done", []):
+            print(f"  {r.incident_id}  {r.action:9s} -> {r.outcome:9s} attempts {r.attempts}  "
+                  f"told: {', '.join(r.notified) or '-'}  {r.detail}")
