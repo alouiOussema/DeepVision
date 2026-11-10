@@ -42,3 +42,7 @@ Thumbs.db
 
 # Action (P5): claims, notifications, deploy requests, challengers, demo files
 /data/action/
+
+# Evaluation: injected failures and evaluation runs
+/data/injections/
+/data/evaluation/
