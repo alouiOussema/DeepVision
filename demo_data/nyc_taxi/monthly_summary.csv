@@ -1,0 +1,7 @@
+month,file,raw_trips,trips_kept,hours,avg_fare,avg_distance
+2025-01,yellow_tripdata_2025-01.parquet,3475226,3253679,744,17.946,3.672
+2025-02,yellow_tripdata_2025-02.parquet,3577543,3310622,672,18.020,3.542
+2025-11,yellow_tripdata_2025-11.parquet,4181444,3704217,720,19.516,3.937
+2025-12,yellow_tripdata_2025-12.parquet,4305006,4105530,744,22.432,3.963
+2026-01,yellow_tripdata_2026-01.parquet,3724889,3560673,744,21.019,3.893
+2026-02,yellow_tripdata_2026-02.parquet,3399866,3249835,672,21.740,3.815

@@ -39,8 +39,23 @@ Diagnosis, Decision, Action and Evaluation have their own README with details an
 | 3 | Data drift | A model input slowly changes | Retrain a challenger; a human approves its deploy |
 | 4 | Unknown failure | A log pattern never seen before | Never act alone: escalate with the evidence |
 
-Data: TravisTorrent (CI builds), Loghub HDFS (system logs), NYC Taxi trips (model data) and simulated deployment
-metrics.
+## The project we operate, and its data
+
+The pipeline DeepVision looks after is a **taxi-fare model**: it predicts the average fare of the coming hour in New
+York. Around it sit a CI, a web service and storage. Its data comes from public datasets we brought in, not from
+something we built:
+
+| Data | Source | Real or not |
+|---|---|---|
+| Model data | [NYC TLC trip records](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page): 22.7 M taxi trips turned into one row per hour | real |
+| CI builds | [TravisTorrent](https://travistorrent.testroots.org) | real dataset; the evaluation uses examples in its format |
+| Storage logs | [Loghub HDFS](https://github.com/logpai/loghub) | real dataset; the evaluation uses examples in its format |
+| Web service metrics | the Monitor's simulator (`ingest/deploy.py`) | simulated |
+
+On top of it we **inject failures** with known answers to grade the agents. Samples of every source, the list of
+injected faults and the download links are in [`demo_data/`](demo_data/README.md) (rebuild with
+`python -m scripts.make_demo_data`). The real data shows a genuine drift: the average fare per trip went from $17.95
+(Jan 2025) to $21.02 (Jan 2026), +17 %.
 
 ## Getting started
 
@@ -95,6 +110,7 @@ These numbers come from a simulation (injected failures, a simulated human, virt
 
 ```
 agents/          one folder per agent (+ evaluation)
+demo_data/       samples of every data source and the list of injected faults
 common/          shared message contracts (schemas.py)
 knowledge_base/  runbooks, past incidents, action risk table
 ui/              Streamlit pages; demo_app.py is the main one

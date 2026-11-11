@@ -16,7 +16,8 @@ st.set_page_config(page_title="DeepVision demo", page_icon="🛰️", layout="wi
 
 PAGES = Path(__file__).resolve().parent / "demo_pages"
 nav = st.navigation({
-    "Start here": [st.Page(PAGES / "p0_project.py", title="The project & today's demo", icon="🎯", default=True)],
+    "Start here": [st.Page(PAGES / "p0_project.py", title="The project & today's demo", icon="🎯", default=True),
+                   st.Page(PAGES / "p0_data.py", title="The pipeline we operate & its data", icon="🗂️")],
     "The pipeline, step by step": [
         st.Page(PAGES / "p1_monitor.py", title="1 · Monitor: detect", icon="📡"),
         st.Page(PAGES / "p2_triage.py", title="2 · Triage: cut the noise", icon="🧹"),

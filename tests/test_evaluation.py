@@ -219,7 +219,7 @@ def test_dashboard_page_loads(tmp_path, monkeypatch):
     assert any(m.label == "Diagnosis accuracy" and m.value == "100.0 %" for m in at.metric)
 
 
-DEMO_PAGES = ["p0_project", "p1_monitor", "p2_triage", "p3_diagnosis", "p4_decision", "p5_human", "p6_action",
+DEMO_PAGES = ["p0_project", "p0_data", "p1_monitor", "p2_triage", "p3_diagnosis", "p4_decision", "p5_human", "p6_action",
               "p7_follow", "p8_results"]
 
 

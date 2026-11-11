@@ -1,0 +1,393 @@
+id,scenario,cause,detail,release_or_config,injected_at,alerts_raised,real_fault,graded
+INJ-D4-001,2 · Bad deploy,bad_deploy,latency_regression,release-054,2026-01-15 00:24:00+00:00,0,True,True
+INJ-D4-002,2 · Bad deploy,infra,capacity_saturation,,2026-01-15 12:39:00+00:00,2,True,True
+INJ-D4-003,2 · Bad deploy,bad_deploy,latency_regression,release-058,2026-01-16 04:24:00+00:00,1,True,True
+INJ-D4-004,2 · Bad deploy,bad_deploy,resource_leak,release-062,2026-01-16 23:39:00+00:00,0,True,True
+INJ-D4-005,2 · Bad deploy,bad_deploy,error_regression,release-064,2026-01-17 16:08:00+00:00,1,True,True
+INJ-D4-006,2 · Bad deploy,bad_deploy,resource_leak,release-066,2026-01-18 07:11:00+00:00,2,True,True
+INJ-D4-007,2 · Bad deploy,infra,capacity_saturation,,2026-01-18 11:36:00+00:00,0,True,True
+INJ-D4-008,2 · Bad deploy,bad_deploy,latency_regression,release-067,2026-01-18 15:26:00+00:00,1,True,True
+INJ-D4-009,2 · Bad deploy,config_change,bad_config,config-002,2026-01-18 20:13:00+00:00,1,True,True
+INJ-D4-010,2 · Bad deploy,bad_deploy,resource_leak,release-071,2026-01-19 18:41:00+00:00,0,True,True
+INJ-D4-011,2 · Bad deploy,config_change,bad_config,config-001,2026-01-20 07:14:00+00:00,1,True,True
+INJ-D4-012,2 · Bad deploy,bad_deploy,error_regression,release-080,2026-01-21 18:33:00+00:00,1,True,True
+INJ-D4-013,2 · Bad deploy,bad_deploy,error_regression,release-081,2026-01-21 22:38:00+00:00,0,True,True
+INJ-D4-014,2 · Bad deploy,bad_deploy,resource_leak,release-082,2026-01-22 02:00:00+00:00,2,True,True
+INJ-D4-015,2 · Bad deploy,bad_deploy,resource_leak,release-092,2026-01-24 11:26:00+00:00,2,True,True
+INJ-D4-016,2 · Bad deploy,bad_deploy,latency_regression,release-093,2026-01-24 15:32:00+00:00,3,True,True
+INJ-D4-017,2 · Bad deploy,bad_deploy,latency_regression,release-096,2026-01-25 11:54:00+00:00,1,True,True
+INJ-D4-018,2 · Bad deploy,config_change,bad_config,config-003,2026-01-25 15:28:00+00:00,1,True,True
+INJ-D4-019,2 · Bad deploy,bad_deploy,resource_leak,release-098,2026-01-26 02:20:00+00:00,2,True,True
+INJ-D4-020,2 · Bad deploy,bad_deploy,latency_regression,release-101,2026-01-26 17:47:00+00:00,0,True,True
+INJ-D4-021,2 · Bad deploy,bad_deploy,resource_leak,release-106,2026-01-27 22:05:00+00:00,2,True,True
+INJ-D4-022,2 · Bad deploy,infra,capacity_saturation,,2026-01-28 15:03:00+00:00,2,True,True
+INJ-D4-023,2 · Bad deploy,bad_deploy,error_regression,release-110,2026-01-28 19:55:00+00:00,1,True,True
+INJ-D4-no_fault,2 · Bad deploy,unknown,no_fault,,,2,False,True
+INJ-D4-recovery,2 · Bad deploy,unknown,recovery,,,14,False,True
+INJ-D5-001,2 · Bad deploy,bad_deploy,error_regression,release-059,2026-01-15 12:33:00+00:00,1,True,True
+INJ-D5-002,2 · Bad deploy,bad_deploy,resource_leak,release-060,2026-01-15 17:44:00+00:00,1,True,True
+INJ-D5-003,2 · Bad deploy,infra,capacity_saturation,,2026-01-15 22:38:00+00:00,0,True,True
+INJ-D5-004,2 · Bad deploy,bad_deploy,resource_leak,release-066,2026-01-17 07:48:00+00:00,0,True,True
+INJ-D5-005,2 · Bad deploy,config_change,bad_config,config-003,2026-01-17 21:38:00+00:00,1,True,True
+INJ-D5-006,2 · Bad deploy,bad_deploy,resource_leak,release-070,2026-01-18 06:42:00+00:00,0,True,True
+INJ-D5-007,2 · Bad deploy,bad_deploy,latency_regression,release-072,2026-01-18 20:30:00+00:00,1,True,True
+INJ-D5-008,2 · Bad deploy,bad_deploy,error_regression,release-074,2026-01-19 10:29:00+00:00,1,True,True
+INJ-D5-009,2 · Bad deploy,bad_deploy,error_regression,release-077,2026-01-20 03:43:00+00:00,1,True,True
+INJ-D5-010,2 · Bad deploy,bad_deploy,error_regression,release-078,2026-01-20 09:33:00+00:00,1,True,True
+INJ-D5-011,2 · Bad deploy,bad_deploy,latency_regression,release-080,2026-01-20 21:47:00+00:00,0,True,True
+INJ-D5-012,2 · Bad deploy,bad_deploy,resource_leak,release-085,2026-01-21 22:13:00+00:00,0,True,True
+INJ-D5-013,2 · Bad deploy,infra,capacity_saturation,,2026-01-22 08:06:00+00:00,2,True,True
+INJ-D5-014,2 · Bad deploy,bad_deploy,resource_leak,release-088,2026-01-22 18:40:00+00:00,2,True,True
+INJ-D5-015,2 · Bad deploy,bad_deploy,resource_leak,release-090,2026-01-23 08:24:00+00:00,1,True,True
+INJ-D5-016,2 · Bad deploy,bad_deploy,resource_leak,release-093,2026-01-24 01:03:00+00:00,0,True,True
+INJ-D5-017,2 · Bad deploy,bad_deploy,error_regression,release-094,2026-01-24 06:18:00+00:00,1,True,True
+INJ-D5-018,2 · Bad deploy,config_change,bad_config,config-001,2026-01-24 21:55:00+00:00,1,True,True
+INJ-D5-019,2 · Bad deploy,bad_deploy,latency_regression,release-104,2026-01-26 18:55:00+00:00,1,True,True
+INJ-D5-020,2 · Bad deploy,infra,capacity_saturation,,2026-01-27 08:39:00+00:00,2,True,True
+INJ-D5-021,2 · Bad deploy,config_change,bad_config,config-002,2026-01-27 23:43:00+00:00,1,True,True
+INJ-D5-no_fault,2 · Bad deploy,unknown,no_fault,,,10,False,True
+INJ-D5-recovery,2 · Bad deploy,unknown,recovery,,,10,False,True
+INJ-CI-001,1 · Flaky test,flaky_test,,,,2,True,True
+INJ-CI-002,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-003,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-004,1 · Flaky test,flaky_test,,,,1,True,True
+INJ-CI-005,1 · Flaky test,flaky_test,,,,1,True,True
+INJ-CI-006,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-007,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-008,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-009,1 · Flaky test,flaky_test,,,,2,True,True
+INJ-CI-010,1 · Flaky test,flaky_test,,,,2,True,True
+INJ-CI-011,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-012,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-013,1 · Flaky test,flaky_test,,,,1,True,True
+INJ-CI-014,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-015,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-016,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-017,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-018,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-019,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-020,1 · Flaky test,flaky_test,,,,2,True,True
+INJ-CI-021,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-022,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-023,1 · Flaky test,flaky_test,,,,2,True,True
+INJ-CI-024,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-025,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-026,1 · Flaky test,flaky_test,,,,1,True,True
+INJ-CI-027,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-028,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-029,1 · Flaky test,flaky_test,,,,2,True,True
+INJ-CI-030,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-031,1 · Flaky test,flaky_test,,,,2,True,True
+INJ-CI-032,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-033,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-034,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-035,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-036,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-037,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-038,1 · Flaky test,flaky_test,,,,1,True,True
+INJ-CI-039,1 · Flaky test,flaky_test,,,,2,True,True
+INJ-CI-040,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-041,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-042,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-043,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-044,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-045,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-046,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-047,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-048,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-049,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-050,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-051,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-052,1 · Flaky test,flaky_test,,,,2,True,True
+INJ-CI-053,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-054,1 · Flaky test,flaky_test,,,,1,True,True
+INJ-CI-055,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-056,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-057,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-058,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-059,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-060,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-061,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-062,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-063,1 · Flaky test,flaky_test,,,,1,True,True
+INJ-CI-064,1 · Flaky test,flaky_test,,,,2,True,True
+INJ-CI-065,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-066,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-067,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-068,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-069,1 · Flaky test,flaky_test,,,,2,True,False
+INJ-CI-070,1 · Flaky test,flaky_test,,,,1,True,False
+INJ-CI-071,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-072,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-073,1 · Flaky test,code_regression,,,,2,True,True
+INJ-CI-074,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-075,1 · Flaky test,code_regression,,,,1,True,False
+INJ-CI-076,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-077,1 · Flaky test,code_regression,,,,4,True,True
+INJ-CI-078,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-079,1 · Flaky test,code_regression,,,,2,True,False
+INJ-CI-080,1 · Flaky test,code_regression,,,,4,True,True
+INJ-CI-081,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-082,1 · Flaky test,code_regression,,,,2,True,True
+INJ-CI-083,1 · Flaky test,code_regression,,,,1,True,False
+INJ-CI-084,1 · Flaky test,code_regression,,,,3,True,True
+INJ-CI-085,1 · Flaky test,code_regression,,,,3,True,False
+INJ-CI-086,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-087,1 · Flaky test,code_regression,,,,4,True,True
+INJ-CI-088,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-089,1 · Flaky test,code_regression,,,,1,True,False
+INJ-CI-090,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-091,1 · Flaky test,code_regression,,,,2,True,False
+INJ-CI-092,1 · Flaky test,code_regression,,,,3,True,False
+INJ-CI-093,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-094,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-095,1 · Flaky test,code_regression,,,,1,True,False
+INJ-CI-096,1 · Flaky test,code_regression,,,,4,True,True
+INJ-CI-097,1 · Flaky test,code_regression,,,,3,True,True
+INJ-CI-098,1 · Flaky test,code_regression,,,,1,True,False
+INJ-CI-099,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-100,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-101,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-102,1 · Flaky test,code_regression,,,,1,True,False
+INJ-CI-103,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-104,1 · Flaky test,code_regression,,,,4,True,True
+INJ-CI-105,1 · Flaky test,code_regression,,,,1,True,False
+INJ-CI-106,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-107,1 · Flaky test,code_regression,,,,4,True,True
+INJ-CI-108,1 · Flaky test,code_regression,,,,3,True,False
+INJ-CI-109,1 · Flaky test,code_regression,,,,2,True,True
+INJ-CI-110,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-111,1 · Flaky test,code_regression,,,,2,True,True
+INJ-CI-112,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-113,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-114,1 · Flaky test,code_regression,,,,2,True,False
+INJ-CI-115,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-116,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-117,1 · Flaky test,code_regression,,,,2,True,True
+INJ-CI-118,1 · Flaky test,code_regression,,,,4,True,True
+INJ-CI-119,1 · Flaky test,code_regression,,,,1,True,False
+INJ-CI-120,1 · Flaky test,code_regression,,,,2,True,False
+INJ-CI-121,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-122,1 · Flaky test,code_regression,,,,1,True,False
+INJ-CI-123,1 · Flaky test,code_regression,,,,3,True,False
+INJ-CI-124,1 · Flaky test,code_regression,,,,1,True,False
+INJ-CI-125,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-126,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-127,1 · Flaky test,code_regression,,,,3,True,False
+INJ-CI-128,1 · Flaky test,code_regression,,,,3,True,False
+INJ-CI-129,1 · Flaky test,code_regression,,,,4,True,True
+INJ-CI-130,1 · Flaky test,code_regression,,,,3,True,True
+INJ-CI-131,1 · Flaky test,code_regression,,,,4,True,True
+INJ-CI-132,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-133,1 · Flaky test,code_regression,,,,3,True,False
+INJ-CI-134,1 · Flaky test,code_regression,,,,1,True,True
+INJ-CI-135,1 · Flaky test,code_regression,,,,2,True,False
+INJ-CI-136,1 · Flaky test,code_regression,,,,3,True,False
+INJ-CI-137,1 · Flaky test,code_regression,,,,4,True,False
+INJ-CI-138,1 · Flaky test,code_regression,,,,2,True,True
+INJ-CI-139,1 · Flaky test,code_regression,,,,1,True,False
+INJ-CI-140,1 · Flaky test,code_regression,,,,4,True,True
+INJ-CI-141,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-142,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-143,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-144,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-145,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-146,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-147,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-148,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-149,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-150,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-151,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-152,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-153,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-154,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-155,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-156,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-157,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-158,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-159,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-160,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-161,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-162,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-163,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-164,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-165,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-166,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-167,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-168,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-169,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-170,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-171,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-172,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-173,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-174,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-175,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-176,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-177,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-178,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-179,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-180,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-181,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-182,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-183,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-184,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-185,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-186,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-187,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-188,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-189,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-190,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-191,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-192,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-193,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-194,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-195,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-196,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-197,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-198,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-199,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-CI-200,1 · Flaky test,infra,ci_runners,,,1,True,True
+INJ-CI-201,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-202,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-203,1 · Flaky test,infra,ci_runners,,,2,True,True
+INJ-CI-204,1 · Flaky test,infra,ci_runners,,,1,True,False
+INJ-CI-205,1 · Flaky test,infra,ci_runners,,,2,True,False
+INJ-LOGS-001,4 · Unknown failure,infra,datanode_network,,,23,True,False
+INJ-LOGS-002,4 · Unknown failure,infra,datanode_network,,,16,True,True
+INJ-LOGS-003,4 · Unknown failure,infra,datanode_network,,,24,True,True
+INJ-LOGS-004,4 · Unknown failure,infra,datanode_network,,,20,True,False
+INJ-LOGS-005,4 · Unknown failure,infra,datanode_network,,,13,True,False
+INJ-LOGS-006,4 · Unknown failure,infra,datanode_network,,,3,True,False
+INJ-LOGS-007,4 · Unknown failure,infra,datanode_network,,,13,True,False
+INJ-LOGS-008,4 · Unknown failure,infra,datanode_network,,,21,True,False
+INJ-LOGS-009,4 · Unknown failure,infra,datanode_network,,,6,True,True
+INJ-LOGS-010,4 · Unknown failure,infra,datanode_network,,,15,True,False
+INJ-LOGS-011,4 · Unknown failure,infra,datanode_network,,,10,True,True
+INJ-LOGS-012,4 · Unknown failure,infra,datanode_network,,,14,True,False
+INJ-LOGS-013,4 · Unknown failure,infra,datanode_network,,,7,True,False
+INJ-LOGS-014,4 · Unknown failure,infra,datanode_network,,,22,True,True
+INJ-LOGS-015,4 · Unknown failure,infra,datanode_network,,,12,True,False
+INJ-LOGS-016,4 · Unknown failure,infra,datanode_network,,,21,True,False
+INJ-LOGS-017,4 · Unknown failure,infra,replication,,,22,True,True
+INJ-LOGS-018,4 · Unknown failure,infra,replication,,,19,True,False
+INJ-LOGS-019,4 · Unknown failure,infra,replication,,,17,True,True
+INJ-LOGS-020,4 · Unknown failure,infra,replication,,,9,True,False
+INJ-LOGS-021,4 · Unknown failure,unknown,known_false_alarm,,,2,False,True
+INJ-LOGS-022,4 · Unknown failure,unknown,no_fault,,,24,False,False
+INJ-LOGS-023,4 · Unknown failure,unknown,no_fault,,,19,False,False
+INJ-LOGS-024,4 · Unknown failure,unknown,no_fault,,,21,False,False
+INJ-LOGS-025,4 · Unknown failure,unknown,no_fault,,,20,False,False
+INJ-LOGS-026,4 · Unknown failure,unknown,no_fault,,,9,False,True
+INJ-LOGS-027,4 · Unknown failure,unknown,no_fault,,,23,False,False
+INJ-LOGS-028,4 · Unknown failure,unknown,no_fault,,,1,False,False
+INJ-LOGS-029,4 · Unknown failure,unknown,no_fault,,,19,False,True
+INJ-LOGS-030,4 · Unknown failure,unknown,no_fault,,,23,False,True
+INJ-LOGS-031,4 · Unknown failure,unknown,no_fault,,,2,False,False
+INJ-LOGS-032,4 · Unknown failure,unknown,no_fault,,,6,False,False
+INJ-LOGS-033,4 · Unknown failure,unknown,no_fault,,,5,False,True
+INJ-LOGS-034,4 · Unknown failure,unknown,no_fault,,,9,False,False
+INJ-LOGS-035,4 · Unknown failure,unknown,no_fault,,,7,False,False
+INJ-LOGS-036,4 · Unknown failure,unknown,no_fault,,,3,False,False
+INJ-LOGS-037,4 · Unknown failure,unknown,no_fault,,,19,False,False
+INJ-LOGS-038,4 · Unknown failure,unknown,no_fault,,,19,False,True
+INJ-LOGS-039,4 · Unknown failure,unknown,no_fault,,,19,False,True
+INJ-LOGS-040,4 · Unknown failure,unknown,no_fault,,,24,False,True
+INJ-LOGS-041,4 · Unknown failure,unknown,no_fault,,,11,False,False
+INJ-LOGS-042,4 · Unknown failure,unknown,no_fault,,,4,False,True
+INJ-LOGS-043,4 · Unknown failure,unknown,no_fault,,,13,False,True
+INJ-LOGS-044,4 · Unknown failure,unknown,no_fault,,,9,False,False
+INJ-LOGS-045,4 · Unknown failure,unknown,no_fault,,,2,False,True
+INJ-LOGS-046,4 · Unknown failure,unknown,no_fault,,,4,False,False
+INJ-LOGS-047,4 · Unknown failure,unknown,no_fault,,,5,False,False
+INJ-LOGS-048,4 · Unknown failure,unknown,no_fault,,,6,False,False
+INJ-LOGS-049,4 · Unknown failure,unknown,no_fault,,,9,False,True
+INJ-MODEL-001,3 · Data drift,data_drift,avg_distance,,,1,True,False
+INJ-MODEL-002,3 · Data drift,data_drift,avg_passenger,,,1,True,True
+INJ-MODEL-003,3 · Data drift,data_drift,avg_distance,,,1,True,False
+INJ-MODEL-004,3 · Data drift,data_drift,avg_passenger,,,1,True,True
+INJ-MODEL-005,3 · Data drift,data_drift,avg_passenger,,,1,True,True
+INJ-MODEL-006,3 · Data drift,data_drift,avg_fare,,,1,True,True
+INJ-MODEL-007,3 · Data drift,data_drift,avg_passenger,,,1,True,True
+INJ-MODEL-008,3 · Data drift,data_drift,avg_distance,,,1,True,False
+INJ-MODEL-009,3 · Data drift,data_drift,avg_passenger,,,1,True,True
+INJ-MODEL-010,3 · Data drift,data_drift,avg_fare,,,1,True,False
+INJ-MODEL-011,3 · Data drift,data_drift,avg_fare,,,1,True,True
+INJ-MODEL-012,3 · Data drift,data_drift,avg_fare,,,1,True,True
+INJ-MODEL-013,3 · Data drift,data_drift,avg_distance,,,1,True,True
+INJ-MODEL-014,3 · Data drift,data_drift,avg_distance,,,1,True,True
+INJ-MODEL-015,3 · Data drift,data_drift,avg_passenger,,,1,True,False
+INJ-MODEL-016,3 · Data drift,data_drift,avg_passenger,,,1,True,True
+INJ-MODEL-017,3 · Data drift,data_drift,avg_distance,,,1,True,False
+INJ-MODEL-018,3 · Data drift,data_drift,avg_distance,,,1,True,True
+INJ-MODEL-019,3 · Data drift,data_drift,avg_passenger,,,1,True,True
+INJ-MODEL-020,3 · Data drift,data_drift,avg_fare,,,1,True,True
+INJ-MODEL-021,3 · Data drift,data_drift,avg_passenger,,,1,True,False
+INJ-MODEL-022,3 · Data drift,data_drift,avg_passenger,,,1,True,True
+INJ-MODEL-023,3 · Data drift,data_drift,avg_distance,,,1,True,True
+INJ-MODEL-024,3 · Data drift,data_drift,avg_fare,,,1,True,False
+INJ-MODEL-025,3 · Data drift,data_drift,avg_distance,,,1,True,True
+INJ-MODEL-026,3 · Data drift,data_drift,avg_passenger,,,1,True,True
+INJ-MODEL-027,3 · Data drift,data_drift,avg_fare,,,1,True,True
+INJ-MODEL-028,3 · Data drift,data_drift,avg_fare,,,1,True,False
+INJ-MODEL-029,3 · Data drift,data_drift,avg_fare,,,1,True,True
+INJ-MODEL-030,3 · Data drift,data_drift,avg_fare,,,1,True,False
+INJ-MODEL-031,3 · Data drift,data_quality,,,,3,True,True
+INJ-MODEL-032,3 · Data drift,data_quality,,,,3,True,False
+INJ-MODEL-033,3 · Data drift,data_quality,,,,3,True,False
+INJ-MODEL-034,3 · Data drift,data_quality,,,,2,True,False
+INJ-MODEL-035,3 · Data drift,data_quality,,,,3,True,False
+INJ-MODEL-036,3 · Data drift,data_quality,,,,3,True,False
+INJ-MODEL-037,3 · Data drift,data_quality,,,,2,True,True
+INJ-MODEL-038,3 · Data drift,data_quality,,,,3,True,False
+INJ-MODEL-039,3 · Data drift,data_quality,,,,2,True,False
+INJ-MODEL-040,3 · Data drift,data_quality,,,,3,True,False
+INJ-MODEL-041,3 · Data drift,data_quality,,,,3,True,False
+INJ-MODEL-042,3 · Data drift,data_quality,,,,3,True,False
+INJ-MODEL-043,3 · Data drift,data_quality,,,,3,True,True
+INJ-MODEL-044,3 · Data drift,data_quality,,,,2,True,True
+INJ-MODEL-045,3 · Data drift,data_quality,,,,2,True,False
+INJ-MODEL-046,3 · Data drift,data_quality,,,,2,True,False
+INJ-MODEL-047,3 · Data drift,data_quality,,,,3,True,False
+INJ-MODEL-048,3 · Data drift,data_quality,,,,2,True,False
+INJ-MODEL-049,3 · Data drift,data_quality,,,,2,True,False
+INJ-MODEL-050,3 · Data drift,data_quality,,,,3,True,False
+INJ-MODEL-051,3 · Data drift,data_quality,,,,2,True,False
+INJ-MODEL-052,3 · Data drift,data_quality,,,,3,True,True
+INJ-MODEL-053,3 · Data drift,data_quality,,,,2,True,False
+INJ-MODEL-054,3 · Data drift,data_quality,,,,2,True,True
+INJ-MODEL-055,3 · Data drift,data_quality,,,,2,True,False
+INJ-MODEL-056,3 · Data drift,data_quality,missing_data,,,1,True,True
+INJ-MODEL-057,3 · Data drift,data_quality,missing_data,,,1,True,False
+INJ-MODEL-058,3 · Data drift,data_quality,missing_data,,,1,True,False
+INJ-MODEL-059,3 · Data drift,data_quality,missing_data,,,1,True,True
+INJ-MODEL-060,3 · Data drift,data_quality,missing_data,,,1,True,False
+INJ-MODEL-061,3 · Data drift,data_quality,missing_data,,,1,True,False
+INJ-MODEL-062,3 · Data drift,data_quality,missing_data,,,1,True,True
+INJ-MODEL-063,3 · Data drift,data_quality,missing_data,,,1,True,False
+INJ-MODEL-064,3 · Data drift,data_quality,missing_data,,,1,True,False
+INJ-MODEL-065,3 · Data drift,data_quality,missing_data,,,1,True,False
+INJ-MODEL-066,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-067,3 · Data drift,unknown,no_fault,,,1,False,True
+INJ-MODEL-068,3 · Data drift,unknown,no_fault,,,1,False,True
+INJ-MODEL-069,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-070,3 · Data drift,unknown,no_fault,,,1,False,True
+INJ-MODEL-071,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-072,3 · Data drift,unknown,no_fault,,,1,False,True
+INJ-MODEL-073,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-074,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-075,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-076,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-077,3 · Data drift,unknown,no_fault,,,1,False,True
+INJ-MODEL-078,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-079,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-080,3 · Data drift,unknown,no_fault,,,1,False,True
+INJ-MODEL-081,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-082,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-083,3 · Data drift,unknown,no_fault,,,1,False,True
+INJ-MODEL-084,3 · Data drift,unknown,no_fault,,,1,False,True
+INJ-MODEL-085,3 · Data drift,unknown,no_fault,,,1,False,True
+INJ-MODEL-086,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-087,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-088,3 · Data drift,unknown,no_fault,,,1,False,True
+INJ-MODEL-089,3 · Data drift,unknown,no_fault,,,1,False,False
+INJ-MODEL-090,3 · Data drift,unknown,no_fault,,,1,False,True
